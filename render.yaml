@@ -15,7 +15,7 @@ services:
       # Pinned to a specific stable version so a redeploy can't
       # silently upgrade n8n. Change this number on purpose when
       # you want to upgrade.
-      url: docker.io/n8nio/n8n:2.36.9
+      url: docker.io/n8nio/n8n:2.42.7
 
     envVars:
       # Generates a key for encrypting saved credentials.
