@@ -1,38 +1,45 @@
-# Use this Blueprint to deploy n8n on Render as a web
-# service that uses a Postgres database to store
-# workflow data.
+# Deploys n8n on Render as a web service that stores
+# workflow data in a Render Postgres database.
 #
-# This Blueprint uses free instance types (specified by
-# `plan`) for both the web service and the database. You
-# can upgrade to paid instance types at any time to
-# increase resources.
+# Both the web service and the database use paid instance
+# types (set by `plan`), so the service never sleeps and
+# the database is not deleted after 30 days.
 
 services:
   - type: web
-    plan: free
-    # This is the runtime for services that pull a prebuilt Docker image
+    plan: 1c-2g
+    # Runtime for services that pull a prebuilt Docker image
     runtime: image
-    # You can give the service any name
     name: n8n-service
     image:
-      # Pulls the n8n image tagged as latest from Docker Hub
-      url: docker.io/n8nio/n8n:latest
+      # Pinned to a specific stable version so a redeploy can't
+      # silently upgrade n8n. Change this number on purpose when
+      # you want to upgrade.
+      url: docker.io/n8nio/n8n:2.36.9
 
-    # All environment variables defined below are required!
-    #
-    # You can define additional environment variables as needed.
     envVars:
-      # Generates a base64-encoded key for
-      # encrypting credentials in n8n
-      #
+      # Generates a key for encrypting saved credentials.
       # Do not modify this value after it's generated!
-      # If you do, you'll lose access to all credentials
-      # encrypted with the previous value.
+      # Losing it means re-entering every login.
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
 
-      # These automatically populate connection details 
-      # for the Render Postgres database defined below
+      # Port Render should route traffic to
+      - key: PORT
+        value: "5678"
+
+      # SFS runs on Arizona time (no daylight saving)
+      - key: GENERIC_TIMEZONE
+        value: America/Phoenix
+      - key: TZ
+        value: America/Phoenix
+
+      # Render puts one proxy in front of the service
+      - key: N8N_PROXY_HOPS
+        value: "1"
+
+      # These populate connection details for the Render
+      # Postgres database defined below
       - key: DB_TYPE
         value: postgresdb
       - key: DB_POSTGRESDB_DATABASE
@@ -54,12 +61,8 @@ services:
 
 databases:
   - name: n8n-db
-    plan: free
-    # The free instance type is limited to 1 GB of disk
-    # space.
-    #
-    # If you later upgrade to a paid instance type, you can
-    # increase the disk size to any multiple of 5 GB by
-    # setting the `diskSizeGB` property.
+    plan: 0.1c-256mb
+    # Disk can be increased in multiples of 5 GB by setting
+    # `diskSizeGB` if the database ever fills up.
     #
     # diskSizeGB: 5
