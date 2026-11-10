@@ -69,4 +69,4 @@ databases:
     # Disk can be increased in multiples of 5 GB by setting
     # `diskSizeGB` if the database ever fills up.
     #
-   diskSizeGB: 5
+    diskSizeGB: 5
