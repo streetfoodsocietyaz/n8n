@@ -11,6 +11,10 @@ services:
     # Runtime for services that pull a prebuilt Docker image
     runtime: image
     name: n8n-service
+        # Keep the custom domain attached on every sync
+    domains:
+      - automation.streetfoodsocietyaz.com
+
     image:
       # Pinned to a specific stable version so a redeploy can't
       # silently upgrade n8n. Change this number on purpose when
@@ -65,4 +69,4 @@ databases:
     # Disk can be increased in multiples of 5 GB by setting
     # `diskSizeGB` if the database ever fills up.
     #
-    # diskSizeGB: 5
+     diskSizeGB: 5
